@@ -995,7 +995,7 @@ BOOLEAN WINAPI GetComputerObjectNameW(
         case NameSamCompatible:
             {
                 WCHAR name[MAX_COMPUTERNAME_LENGTH + 1];
-                DWORD size = sizeof(name)/sizeof(name[0]);
+                DWORD size = ARRAY_SIZE(name);
                 if (GetComputerNameW(name, &size))
                 {
                     DWORD len = domainInfo->Name.Length + size + 3;
@@ -1038,7 +1038,7 @@ BOOLEAN WINAPI GetComputerObjectNameW(
             DWORD len, size;
             WCHAR *suffix;
 
-            size = sizeof(name) / sizeof(name[0]);
+            size = ARRAY_SIZE(name);
             if (!GetComputerNameW(name, &size))
             {
                 status = FALSE;
@@ -1201,25 +1201,9 @@ BOOLEAN WINAPI GetUserNameExW(
             return FALSE;
         }
 
-    case NameDisplay:
-        {
-            const char *name = wine_get_user_name();
-            DWORD len = MultiByteToWideChar( CP_UNIXCP, 0, name, -1, NULL, 0 );
-
-            if (len > *nSize)
-            {
-                SetLastError( ERROR_MORE_DATA );
-                *nSize = len;
-                return FALSE;
-            }
-
-            *nSize = len - 1;
-            MultiByteToWideChar( CP_UNIXCP, 0, name, -1, lpNameBuffer, len );
-            return TRUE;
-        }
-
     case NameUnknown:
     case NameFullyQualifiedDN:
+    case NameDisplay:
     case NameUniqueId:
     case NameCanonical:
     case NameUserPrincipal:
